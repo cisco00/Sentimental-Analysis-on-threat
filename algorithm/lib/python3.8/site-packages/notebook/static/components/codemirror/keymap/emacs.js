@@ -404,8 +404,7 @@
     "Ctrl-X H": "selectAll",
 
     "Ctrl-Q Tab": repeated("insertTab"),
-    "Ctrl-U": addPrefixMap,
-    "fallthrough": "default"
+    "Ctrl-U": addPrefixMap
   });
 
   var prefixMap = {"Ctrl-G": clearPrefix};

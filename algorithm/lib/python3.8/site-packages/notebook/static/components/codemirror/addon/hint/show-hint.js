@@ -85,16 +85,11 @@
     },
 
     pick: function(data, i) {
-      var completion = data.list[i], self = this;
-      this.cm.operation(function() {
-        if (completion.hint)
-          completion.hint(self.cm, data, completion);
-        else
-          self.cm.replaceRange(getText(completion), completion.from || data.from,
-                               completion.to || data.to, "complete");
-        CodeMirror.signal(data, "pick", completion);
-        self.cm.scrollIntoView();
-      })
+      var completion = data.list[i];
+      if (completion.hint) completion.hint(this.cm, data, completion);
+      else this.cm.replaceRange(getText(completion), completion.from || data.from,
+                                completion.to || data.to, "complete");
+      CodeMirror.signal(data, "pick", completion);
       this.close();
     },
 
@@ -104,14 +99,9 @@
         this.debounce = 0;
       }
 
-      var identStart = this.startPos;
-      if(this.data) {
-        identStart = this.data.from;
-      }
-
       var pos = this.cm.getCursor(), line = this.cm.getLine(pos.line);
       if (pos.line != this.startPos.line || line.length - pos.ch != this.startLen - this.startPos.ch ||
-          pos.ch < identStart.ch || this.cm.somethingSelected() ||
+          pos.ch < this.startPos.ch || this.cm.somethingSelected() ||
           (!pos.ch || this.options.closeCharacters.test(line.charAt(pos.ch - 1)))) {
         this.close();
       } else {
@@ -332,7 +322,6 @@
     CodeMirror.on(hints, "mousedown", function() {
       setTimeout(function(){cm.focus();}, 20);
     });
-    this.scrollToActive()
 
     CodeMirror.signal(data, "select", completions[this.selectedHint], hints.childNodes[this.selectedHint]);
     return true;
@@ -374,19 +363,11 @@
       if (node) node.className = node.className.replace(" " + ACTIVE_HINT_ELEMENT_CLASS, "");
       node = this.hints.childNodes[this.selectedHint = i];
       node.className += " " + ACTIVE_HINT_ELEMENT_CLASS;
-      this.scrollToActive()
+      if (node.offsetTop < this.hints.scrollTop)
+        this.hints.scrollTop = node.offsetTop - 3;
+      else if (node.offsetTop + node.offsetHeight > this.hints.scrollTop + this.hints.clientHeight)
+        this.hints.scrollTop = node.offsetTop + node.offsetHeight - this.hints.clientHeight + 3;
       CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
-    },
-
-    scrollToActive: function() {
-      var margin = this.completion.options.scrollMargin || 0;
-      var node1 = this.hints.childNodes[Math.max(0, this.selectedHint - margin)];
-      var node2 = this.hints.childNodes[Math.min(this.data.list.length - 1, this.selectedHint + margin)];
-      var firstNode = this.hints.firstChild;
-      if (node1.offsetTop < this.hints.scrollTop)
-        this.hints.scrollTop = node1.offsetTop - firstNode.offsetTop;
-      else if (node2.offsetTop + node2.offsetHeight > this.hints.scrollTop + this.hints.clientHeight)
-        this.hints.scrollTop = node2.offsetTop + node2.offsetHeight - this.hints.clientHeight + firstNode.offsetTop;
     },
 
     screenAmount: function() {
