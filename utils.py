@@ -13,7 +13,7 @@ def clean_text(text: str)->str:
 
     #removing puntuation
     for char in string.punctuation:
-    text = text.replace(char, "")
+        text = text.replace(char, "")
 
     #lemmatize the words and join back into string text
     text = " ".join([wordnet_lemmatizer.lemmatize(word) for word in word_tokenize(text)])
@@ -21,14 +21,14 @@ def clean_text(text: str)->str:
 
 class DenseTransformer(TransformerMixin):
     def fit(self, X, y=None, **fit_params):
-    return self
+        return self
 
     def predict(self, X, y=None, **fit_params):
-    return self.X.todense()
+        return self.X.todense()
 
     def _self_(self):
-    return "DenseTransformer()"
+        return "DenseTransformer()"
 
     def __repr__(self):
-    return self .__str__()
+        return self .__str__()
 
